@@ -3,6 +3,7 @@ const inquirer = require("inquirer");
 const path = require("path");
 const mysql = require("mysql2");
 const myRootPW = require("./rootPassword");
+const cTable = require('console.table');
 
 // Connect to the employee database
 const db = mysql.createConnection(
@@ -14,3 +15,4 @@ const db = mysql.createConnection(
   },
   console.log(`Connected to database.`)
 );
+
