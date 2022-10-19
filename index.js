@@ -14,7 +14,17 @@ const employeeManager = () => {
       type: "list",
       message: "What would you like to do?",
       name: "userSelection",
-      choices: ["View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit"],
+      choices: 
+        [
+          "View All Employees", 
+          "Add Employee", 
+          "Update Employee Role", 
+          "View All Roles", 
+          "Add Role", 
+          "View All Departments", 
+          "Add Department", 
+          "Quit"
+        ],
     },
   ]) 
   
@@ -67,12 +77,14 @@ const viewEmployees = () => {
 
 // Add an employee
 const addEmployee = () => {
+  // Query the roles
   db.query("SELECT * FROM role", (err, res) => {
     if (err) throw err;
     let roles = res.map((role) => ({
       name: role.title,
       value: role.id
     }));
+  // Query the employees
   db.query("SELECT * FROM employee", (err, res) => {
     if (err) throw err;
     let managers = res.map((manager) => ({
@@ -123,9 +135,13 @@ const addEmployee = () => {
   });
 };
 
+// For the roles you want to query the departments so they show up in the choices and for the update employee you want to query the employees and roles. 
+
 // Update employee role
 const updateRole = () => {
-  
+  // Query the employees
+
+  // Query the roles
 };
 
 // View all roles
@@ -138,12 +154,13 @@ const viewRoles = () => {
 
 // Add a role
 const addRole = () => {
+  // Query the departments
 
 };
 
 // View all departments
 const viewDepartments = () => {
-  db.query("SELECT * FROM department", function (err, results) {
+  db.query("SELECT id, name AS Department FROM department", function (err, results) {
     console.table(results);
     employeeManager()
   })
@@ -158,6 +175,17 @@ const addDepartment = () => {
       name: "departmentName",
     },
   ])
+  .then((answers) => {
+    db.query(`INSERT INTO department SET ?`,
+    { name:answers.departmentName },
+
+    (err, res) => {
+      if (err) throw err;
+      console.log(`\n ${answers.departmentName} was successfully added to the database! \n`);
+
+      employeeManager();
+    })
+  })
 };
 
 // Quit
