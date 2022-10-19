@@ -1,20 +1,9 @@
 // Required packages / file paths
 const inquirer = require("inquirer");
 const path = require("path");
-const mysql = require("mysql2");
-const myRootPW = require("./rootPassword");
 const cTable = require('console.table');
+const db = require("./db/connection");
 
-// Connect to the employee database
-const db = mysql.createConnection(
-  {
-    host: "localhost",
-    user: "root",
-    password: myRootPW,
-    database: "employee_db"
-  },
-  console.log(`Connected to database.`)
-);
 
 // Prompt for user to select what to do
 const employeeManager = () => {
@@ -64,16 +53,32 @@ employeeManager()
 
 // View all employees
 const viewEmployees = () => {
-  db.query("SELECT * FROM employee_db.employee em LEFT OUTER JOIN employee_db.role ro ON em.id = ro.id LEFT OUTER JOIN employee_db.department de ON ro.department_id = de.id",
+  db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;",
   function (err, employees) {
     if (err) throw err
     console.table(employees);
     employeeManager()
   })
 };
-
+ /*
+"SELECT * FROM employee_db.employee em LEFT OUTER JOIN employee_db.role ro ON em.id = ro.id LEFT OUTER JOIN employee_db.department de ON ro.department_id = de.id LEFT OUTER JOIN employee_db.employee manager ON em.first_name = em.manager_id"
+*/
 // Add an employee
 const addEmployee = () => {
+  db.query(`SELECT * FROM role`, (res, err) => {
+    console.log(res, "response from select")
+    if (err) {console.log(err)}
+    let roles = res.map((role) => ({
+      name: role.title,
+      value: role.id
+    }))
+  db.query("SELECT * FROM employee", (res, err) => {
+    if (err) throw err
+    let managers = res.map((manager) => ({
+      name: manager.first_name + " " + manager.last_name,
+      value: manager.id
+    }))
+  
   inquirer.prompt([
     {
       type: "input",
@@ -89,20 +94,31 @@ const addEmployee = () => {
       type: "input",
       message: "Select the employee's role.",
       name: "employeeRole",
-      choices: ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Account Manager", "Accountant", "Legal Team Lead", "Lawyer"],
+      choices: roles,
     },
     {
       type: "input",
       message: "Select the employee's manager.",
       name: "employeeManager",
-      choices: ["None", "John Doe", "Ashley Rodriguez", "Kunal Sing", "Sarah Lourd"],
+      choices: managers,
     }
-  ])
+  ]) .then((answers) => {
+    db.query(`INSERT INTO employee SET ? `, {
+      first_name:answers.firstName, 
+      last_name:answers.lastName,
+      role_id:answers.employeeRole,
+      manager_id:answers.employeeManager
+    },(res, err) => {
+      if (err) throw err
+    })
+  })
+})
+})
 };
 
 // Update employee role
 const updateRole = () => {
-
+  
 };
 
 // View all roles
