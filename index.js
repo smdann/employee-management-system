@@ -16,7 +16,7 @@ const db = mysql.createConnection(
   console.log(`Connected to database.`)
 );
 
-// Prompts for user
+// Prompt for user to select what to do
 const employeeManager = () => {
   console.log("Welcome to the Employee Management System.");
 
@@ -25,14 +25,18 @@ const employeeManager = () => {
       type: "list",
       message: "What would you like to do?",
       name: "userSelection",
-      choices: ["Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit"],
+      choices: ["View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit"],
     },
   ]) 
   
+  // Runs function based on user's selection
   .then((response) => {
     const userResponse = response.userSelection;
+    if (userResponse === "View All Employees") {
+      console.log("User selected view all employees")
+      viewEmployees()
+    }
     if (userResponse === "Add Employee") {
-      console.log("Add employee selected by user")
       addEmployee()
     }
     if (userResponse === "Update Employee Role") {
@@ -57,3 +61,77 @@ const employeeManager = () => {
 };
 
 employeeManager()
+
+// View all employees
+const viewEmployees = () => {
+  db.query("SELECT * FROM employee_db.employee em LEFT OUTER JOIN employee_db.role ro ON em.id = ro.id LEFT OUTER JOIN employee_db.department de ON ro.department_id = de.id",
+  function (err, employees) {
+    if (err) throw err
+    console.table(employees);
+    employeeManager()
+  })
+};
+
+// Add an employee
+const addEmployee = () => {
+  inquirer.prompt([
+    {
+      type: "input",
+      message: "Enter the employee's first name.",
+      name: "firstName",
+    },
+    {
+      type: "input",
+      message: "Enter the employee's last name.",
+      name: "lastName",
+    },
+    {
+      type: "input",
+      message: "Select the employee's role.",
+      name: "employeeRole",
+      choices: ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Account Manager", "Accountant", "Legal Team Lead", "Lawyer"],
+    },
+    {
+      type: "input",
+      message: "Select the employee's manager.",
+      name: "employeeManager",
+      choices: ["None", "John Doe", "Ashley Rodriguez", "Kunal Sing", "Sarah Lourd"],
+    }
+  ])
+};
+
+// Update employee role
+const updateRole = () => {
+
+};
+
+// View all roles
+const viewRoles = () => {
+  db.query("SELECT * FROM role", function (err, results) {
+    console.table(results);
+    employeeManager()
+  })
+};
+
+// Add a role
+const addRole = () => {
+
+};
+
+// View all departments
+const viewDepartments = () => {
+  db.query("SELECT * FROM department", function (err, results) {
+    console.table(results);
+    employeeManager()
+  })
+};
+
+// Add a department
+const addDepartment = () => {
+
+};
+
+// Quit
+const quitApplication = () => {
+
+};
