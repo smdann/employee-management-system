@@ -60,60 +60,67 @@ const viewEmployees = () => {
     employeeManager()
   })
 };
+
  /*
 "SELECT * FROM employee_db.employee em LEFT OUTER JOIN employee_db.role ro ON em.id = ro.id LEFT OUTER JOIN employee_db.department de ON ro.department_id = de.id LEFT OUTER JOIN employee_db.employee manager ON em.first_name = em.manager_id"
 */
+
 // Add an employee
 const addEmployee = () => {
-  db.query(`SELECT * FROM role`, (res, err) => {
-    console.log(res, "response from select")
-    if (err) {console.log(err)}
+  db.query("SELECT * FROM role", (err, res) => {
+    if (err) throw err;
     let roles = res.map((role) => ({
       name: role.title,
       value: role.id
-    }))
-  db.query("SELECT * FROM employee", (res, err) => {
-    if (err) throw err
+    }));
+  db.query("SELECT * FROM employee", (err, res) => {
+    if (err) throw err;
     let managers = res.map((manager) => ({
       name: manager.first_name + " " + manager.last_name,
       value: manager.id
-    }))
+    }));
   
-  inquirer.prompt([
-    {
-      type: "input",
-      message: "Enter the employee's first name.",
-      name: "firstName",
-    },
-    {
-      type: "input",
-      message: "Enter the employee's last name.",
-      name: "lastName",
-    },
-    {
-      type: "input",
-      message: "Select the employee's role.",
-      name: "employeeRole",
-      choices: roles,
-    },
-    {
-      type: "input",
-      message: "Select the employee's manager.",
-      name: "employeeManager",
-      choices: managers,
-    }
-  ]) .then((answers) => {
-    db.query(`INSERT INTO employee SET ? `, {
-      first_name:answers.firstName, 
-      last_name:answers.lastName,
-      role_id:answers.employeeRole,
-      manager_id:answers.employeeManager
-    },(res, err) => {
-      if (err) throw err
-    })
-  })
-})
-})
+      inquirer.prompt([
+        {
+          type: "input",
+          message: "Enter the employee's first name.",
+          name: "firstName",
+        },
+        {
+          type: "input",
+          message: "Enter the employee's last name.",
+          name: "lastName",
+        },
+        {
+          type: "list",
+          message: "Select the employee's role.",
+          name: "employeeRole",
+          choices: roles,
+        },
+        {
+          type: "list",
+          message: "Select the employee's manager.",
+          name: "employeeManager",
+          choices: managers,
+        }
+      ]) 
+      .then((answers) => {
+        db.query(`INSERT INTO employee SET ?`, 
+        {
+          first_name:answers.firstName, 
+          last_name:answers.lastName,
+          role_id:answers.employeeRole,
+          manager_id:answers.employeeManager
+        },
+        (err, res) => {
+          if (err) throw err;
+          console.log(`\n ${answers.firstName} ${answers.lastName} was successfully added to the database! \n`);
+
+          employeeManager();
+        })
+      });
+    });
+  });
 };
 
 // Update employee role
@@ -144,7 +151,13 @@ const viewDepartments = () => {
 
 // Add a department
 const addDepartment = () => {
-
+  inquirer.prompt([
+    {
+      type: "input",
+      message: "Enter the department name.",
+      name: "departmentName",
+    },
+  ])
 };
 
 // Quit
