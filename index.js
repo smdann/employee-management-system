@@ -4,11 +4,13 @@ const path = require("path");
 const cTable = require('console.table');
 const db = require("./db/connection");
 
+console.log(`======================================================================================`);
+console.log(`\n                   Welcome to the Employee Management System.                     \n`);
+console.log(`======================================================================================`);
 
 // Prompt for user to select what to do
 const employeeManager = () => {
-  console.log("Welcome to the Employee Management System.");
-
+  
   inquirer.prompt([
     {
       type: "list",
@@ -32,7 +34,7 @@ const employeeManager = () => {
   .then((response) => {
     const userResponse = response.userSelection;
     if (userResponse === "View All Employees") {
-      console.log("User selected view all employees")
+      
       viewEmployees()
     }
     if (userResponse === "Add Employee") {
@@ -63,21 +65,24 @@ employeeManager()
 
 // View all employees
 const viewEmployees = () => {
+  console.log(`======================================================================================`);
+  console.log(`\n                                    All Employees                                 \n`);
+  console.log(`======================================================================================`);
   // Query to select employee information by joining the table data
   db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;",
   function (err, employees) {
     if (err) throw err
     console.table(employees);
+    
     employeeManager()
   })
 };
 
- /*
-"SELECT * FROM employee_db.employee em LEFT OUTER JOIN employee_db.role ro ON em.id = ro.id LEFT OUTER JOIN employee_db.department de ON ro.department_id = de.id LEFT OUTER JOIN employee_db.employee manager ON em.first_name = em.manager_id"
-*/
-
 // Add an employee
 const addEmployee = () => {
+  console.log(`======================================================================================`);
+  console.log(`\n                                  Add an Employee                                 \n`);
+  console.log(`======================================================================================`);
   // Query the roles
   db.query("SELECT * FROM role", (err, res) => {
     if (err) throw err;
@@ -131,16 +136,17 @@ const addEmployee = () => {
           console.log(`\n ${answers.firstName} ${answers.lastName} was successfully added to the database! \n`);
 
           employeeManager()
-        })
+        });
       });
     });
   });
 };
 
-// For the roles you want to query the departments so they show up in the choices and for the update employee you want to query the employees and roles. 
-
 // Update employee role
 const updateRole = () => {
+  console.log(`======================================================================================`);
+  console.log(`\n                            Update an Employee's Role                             \n`);
+  console.log(`======================================================================================`);
   // Query the employees
   db.query("SELECT * FROM employee", (err, res) => {
     if (err) throw err;
@@ -148,15 +154,13 @@ const updateRole = () => {
       name: employee.first_name + " " + employee.last_name,
       value: employee.id
     }));
-  
   // Query the roles
   db.query("SELECT * FROM role", (err, res) => {
     if (err) throw err;
     let roles = res.map((role) => ({
       name: role.title,
       value: role.id
-    }));
-  
+    }));  
     // Prompts to gather updated employee information
     inquirer.prompt([
       {
@@ -176,21 +180,27 @@ const updateRole = () => {
     .then((answers) => {
       db.query(`REPLACE INTO employee SET ?`,
       {
-        role_id: answers.newEmployeeRole
+        first_name: employees.first_name,
+        last_name: employees.last_name,
+        role_id: answers.newEmployeeRole,
+
       },
       (err, res) => {
         if (err) throw err;
         console.log(`\n The role was successfully updated.`);
 
         employeeManager()
-      })
-    })
-  }); 
+      });
+    });
+  });
 });
 };
 
 // View all roles
 const viewRoles = () => {
+  console.log(`======================================================================================`);
+  console.log(`\n                                  View All Roles                                  \n`);
+  console.log(`======================================================================================`);
   db.query("SELECT * FROM role", function (err, results) {
     console.table(results);
     employeeManager()
@@ -199,13 +209,9 @@ const viewRoles = () => {
 
 // Add a role
 const addRole = () => {
-  // Query the departments
-  // db.query("SELECT * FROM department", (err, res) => {
-  //   if (err) throw err;
-  //   let departments = res.map((department) => ({
-  //     name: department.name,
-  //     value: department.id
-  //   }));
+  console.log(`======================================================================================`);
+  console.log(`\n                                     Add a Role                                   \n`);
+  console.log(`======================================================================================`);
   // Query to get department ID when department is selected
   db.query("SELECT distinct name, department_id FROM employee_db.department INNER JOIN employee_db.role ON employee_db.department.id = employee_db.role.department_id", (err, res) => {
     if (err) throw err;
@@ -213,8 +219,6 @@ const addRole = () => {
       name: department.name,
       value: department.department_id
     }));
-  
-
     // Prompts to gather new role information
     inquirer.prompt([
       {
@@ -254,6 +258,9 @@ const addRole = () => {
 
 // View all departments
 const viewDepartments = () => {
+  console.log(`======================================================================================`);
+  console.log(`\n                              View All Departments                                \n`);
+  console.log(`======================================================================================`);
   db.query("SELECT id, name AS Department FROM department", function (err, results) {
     console.table(results);
     employeeManager()
@@ -262,6 +269,9 @@ const viewDepartments = () => {
 
 // Add a department
 const addDepartment = () => {
+  console.log(`======================================================================================`);
+  console.log(`\n                                Add a Department                                  \n`);
+  console.log(`======================================================================================`);
   inquirer.prompt([
     {
       type: "input",
@@ -284,5 +294,8 @@ const addDepartment = () => {
 
 // Quit
 const quitApplication = () => {
-
+  process.exit
+  console.log(`======================================================================================`);
+  console.log(`\n              Your Employee Management System session has ended.                  \n`);
+  console.log(`======================================================================================`);
 };
