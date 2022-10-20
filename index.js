@@ -63,6 +63,7 @@ employeeManager()
 
 // View all employees
 const viewEmployees = () => {
+  // Query to select employee information by joining the table data
   db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;",
   function (err, employees) {
     if (err) throw err
@@ -91,7 +92,7 @@ const addEmployee = () => {
       name: manager.first_name + " " + manager.last_name,
       value: manager.id
     }));
-  
+      // Prompts to gather new employee information
       inquirer.prompt([
         {
           type: "input",
@@ -116,6 +117,7 @@ const addEmployee = () => {
           choices: managers,
         }
       ]) 
+      // Add new employee data to the employee table
       .then((answers) => {
         db.query(`INSERT INTO employee SET ?`, 
         {
@@ -128,7 +130,7 @@ const addEmployee = () => {
           if (err) throw err;
           console.log(`\n ${answers.firstName} ${answers.lastName} was successfully added to the database! \n`);
 
-          employeeManager();
+          employeeManager()
         })
       });
     });
@@ -149,13 +151,62 @@ const viewRoles = () => {
   db.query("SELECT * FROM role", function (err, results) {
     console.table(results);
     employeeManager()
-  })
+  });
 };
 
 // Add a role
 const addRole = () => {
   // Query the departments
+  // db.query("SELECT * FROM department", (err, res) => {
+  //   if (err) throw err;
+  //   let departments = res.map((department) => ({
+  //     name: department.name,
+  //     value: department.id
+  //   }));
+  // Query to get department ID when department is selected
+  db.query("SELECT distinct name, department_id FROM employee_db.department INNER JOIN employee_db.role ON employee_db.department.id = employee_db.role.department_id", (err, res) => {
+    if (err) throw err;
+    let departments = res.map((department) => ({
+      name: department.name,
+      value: department.department_id
+    }));
+  
 
+    // Prompts to gather new role information
+    inquirer.prompt([
+      {
+        type: "input",
+        message: "Enter the title for this role.",
+        name: "roleTitle",
+      },
+      {
+        type: "list",
+        message: "Select the department in which this role belongs to.",
+        name: "roleDepartment",
+        choices: departments,
+      },
+      {
+        type: "input",
+        message: "Enter the salary for this role.",
+        name: "roleSalary",
+      }
+    ])
+    // Add new role data into the role table
+    .then((answers) => {
+      db.query(`INSERT INTO role SET ?`,
+      {
+        title:answers.roleTitle,
+        salary:answers.roleSalary,
+        department_id:answers.roleDepartment
+      },
+      (err, res) => {
+        if (err) throw err;
+        console.log(`\n ${answers.roleTitle} was successfully added to the database! \n`);
+
+        employeeManager()
+      })
+    })
+  });
 };
 
 // View all departments
