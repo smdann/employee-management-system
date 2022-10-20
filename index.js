@@ -142,8 +142,51 @@ const addEmployee = () => {
 // Update employee role
 const updateRole = () => {
   // Query the employees
-
+  db.query("SELECT * FROM employee", (err, res) => {
+    if (err) throw err;
+    let employees = res.map((employee) => ({
+      name: employee.first_name + " " + employee.last_name,
+      value: employee.id
+    }));
+  
   // Query the roles
+  db.query("SELECT * FROM role", (err, res) => {
+    if (err) throw err;
+    let roles = res.map((role) => ({
+      name: role.title,
+      value: role.id
+    }));
+  
+    // Prompts to gather updated employee information
+    inquirer.prompt([
+      {
+        type: "list",
+        message: "Select an employee to update their role.",
+        name: "updateEmployee",
+        choices: employees,
+      },
+      {
+        type: "list",
+        message: "Select a new role for this employee.",
+        name: "newEmployeeRole",
+        choices: roles,
+      }
+    ])
+    // Replace employee role data in the database
+    .then((answers) => {
+      db.query(`REPLACE INTO employee SET ?`,
+      {
+        role_id: answers.newEmployeeRole
+      },
+      (err, res) => {
+        if (err) throw err;
+        console.log(`\n The role was successfully updated.`);
+
+        employeeManager()
+      })
+    })
+  }); 
+});
 };
 
 // View all roles
