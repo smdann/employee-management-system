@@ -34,7 +34,6 @@ const employeeManager = () => {
   .then((response) => {
     const userResponse = response.userSelection;
     if (userResponse === "View All Employees") {
-      
       viewEmployees()
     }
     if (userResponse === "Add Employee") {
@@ -178,13 +177,15 @@ const updateRole = () => {
     ])
     // Replace employee role data in the database
     .then((answers) => {
-      db.query(`REPLACE INTO employee SET ?`,
-      {
-        first_name: employees.first_name,
-        last_name: employees.last_name,
-        role_id: answers.newEmployeeRole,
-
-      },
+      db.query(`UPDATE employee SET ? WHERE ?`,
+      [
+        {
+          role_id: answers.newEmployeeRole,
+        },
+        {
+          id: answers.updateEmployee
+        }
+      ],
       (err, res) => {
         if (err) throw err;
         console.log(`\n The role was successfully updated.`);
@@ -201,6 +202,7 @@ const viewRoles = () => {
   console.log(`======================================================================================`);
   console.log(`\n                                  View All Roles                                  \n`);
   console.log(`======================================================================================`);
+  
   db.query("SELECT * FROM role", function (err, results) {
     console.table(results);
     employeeManager()
@@ -212,7 +214,7 @@ const addRole = () => {
   console.log(`======================================================================================`);
   console.log(`\n                                     Add a Role                                   \n`);
   console.log(`======================================================================================`);
-  // Query to get department ID when department is selected
+  // Query to get department ID when department name is selected
   db.query("SELECT distinct name, department_id FROM employee_db.department INNER JOIN employee_db.role ON employee_db.department.id = employee_db.role.department_id", (err, res) => {
     if (err) throw err;
     let departments = res.map((department) => ({
@@ -261,6 +263,7 @@ const viewDepartments = () => {
   console.log(`======================================================================================`);
   console.log(`\n                              View All Departments                                \n`);
   console.log(`======================================================================================`);
+  
   db.query("SELECT id, name AS Department FROM department", function (err, results) {
     console.table(results);
     employeeManager()
@@ -272,6 +275,7 @@ const addDepartment = () => {
   console.log(`======================================================================================`);
   console.log(`\n                                Add a Department                                  \n`);
   console.log(`======================================================================================`);
+  
   inquirer.prompt([
     {
       type: "input",
@@ -279,6 +283,7 @@ const addDepartment = () => {
       name: "departmentName",
     },
   ])
+  // Add new department name into department table
   .then((answers) => {
     db.query(`INSERT INTO department SET ?`,
     { name:answers.departmentName },
@@ -295,6 +300,7 @@ const addDepartment = () => {
 // Quit
 const quitApplication = () => {
   process.exit
+
   console.log(`======================================================================================`);
   console.log(`\n              Your Employee Management System session has ended.                  \n`);
   console.log(`======================================================================================`);

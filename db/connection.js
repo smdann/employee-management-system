@@ -5,10 +5,10 @@ const mysql = require("mysql2");
 // Connect to the employee database
 const db = mysql.createConnection(
   {
-    host: "localhost",
-    user: "root",
-    password: process.env.DB_PW,
-    database: "employee_db"
+    host: process.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE
   },
   console.log(`Connected to database.`)
 );
