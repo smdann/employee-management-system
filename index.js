@@ -25,7 +25,8 @@ const employeeManager = () => {
           "Add Role", 
           "View All Departments", 
           "Add Department",
-          "Delete Employee", 
+          "Delete Employee",
+          "Delete Role", 
           "Quit"
         ],
     },
@@ -65,6 +66,10 @@ const employeeManager = () => {
 
       case "Delete Employee":
         deleteEmployee()
+        break;
+
+      case "Delete Role":
+        deleteRole()
         break;
     
       case "Quit":
@@ -353,6 +358,42 @@ const deleteEmployee = () => {
   });
 };
 
+// Delete a role
+const deleteRole = () => {
+  console.log(`======================================================================================`);
+  console.log(`\n                                  Delete a Role                                   \n`);
+  console.log(`======================================================================================`);
+
+  // Query the roles
+  db.query("SELECT * FROM role", (err, res) => {
+    if (err) throw err;
+    let roles = res.map((role) => ({
+      name: role.title,
+      value: role.id
+    }));  
+
+    inquirer.prompt([
+      {
+        type: "list",
+        message: "Select the role you would like to delete.",
+        name: "roleDelete",
+        choices: roles,
+      }
+    ])
+    .then((answer) => {
+      db.query(`DELETE FROM role WHERE ?`, 
+      {
+        id: answer.roleDelete
+      },
+      (err, res) => {
+        if (err) throw err;
+        console.log(`\n Role successfully deleted from the database. \n`);
+
+        employeeManager()
+      })
+    });
+  });
+};
 
 // Quit
 const quitApplication = () => {
