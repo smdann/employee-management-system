@@ -32,34 +32,44 @@ const employeeManager = () => {
   
   // Runs function based on user's selection
   .then((response) => {
-    const userResponse = response.userSelection;
-    if (userResponse === "View All Employees") {
-      viewEmployees()
+    switch (response.userSelection) {
+
+      case "View All Employees":
+        viewEmployees()
+        break;
+
+      case "Add Employee":
+        addEmployee()
+        break;
+
+      case "Update Employee Role":
+        updateRole()
+        break;
+
+      case "View All Roles":
+        viewRoles()
+        break;
+    
+      case "Add Role":
+        addRole()
+        break;
+    
+      case "View All Departments":
+        viewDepartments()
+        break;
+    
+      case "Add Department":
+        addDepartment()
+        break;
+    
+      case "Quit":
+        quitApplication()
+        break;
     }
-    if (userResponse === "Add Employee") {
-      addEmployee()
-    }
-    if (userResponse === "Update Employee Role") {
-      updateRole()
-    }
-    if (userResponse === "View All Roles") {
-      viewRoles()
-    }
-    if (userResponse === "Add Role") {
-      addRole()
-    }
-    if (userResponse === "View All Departments") {
-      viewDepartments()
-    }
-    if (userResponse === "Add Department") {
-      addDepartment()
-    } 
-    if (userResponse === "Quit") {
-      quitApplication()
-    }
-  })
+  });
 };
 
+// Starts the initial prompts for the user
 employeeManager()
 
 // View all employees
