@@ -56,9 +56,9 @@ The following information is available for each employee in the database:
 
 The Employee Management System is an essential tool for business owners looking to manage employees, roles, and departments in their company.
 
-[Walkthrough Video]()
+[Walkthrough Video](https://drive.google.com/file/d/1dSZjMMMjWaBeoMH3pJ8EenKgtoJU3vCd/view)
 
-![Employee Management System Screenshot](./)
+![Employee Management System Screenshot](./assets/images/employee-management-sytem-screenshot.png)
 
 ## License 
 
