@@ -85,7 +85,7 @@ employeeManager()
 // View all employees
 const viewEmployees = () => {
   console.log(`======================================================================================`);
-  console.log(`\n                                    All Employees                                 \n`);
+  console.log(`\n                                View All Employees                                \n`);
   console.log(`======================================================================================`);
   
   // Query to select employee information by joining the table data
@@ -288,7 +288,7 @@ const viewDepartments = () => {
   console.log(`\n                              View All Departments                                \n`);
   console.log(`======================================================================================`);
   
-  db.query("SELECT id, name AS Department FROM department", function (err, results) {
+  db.query("SELECT * FROM department", function (err, results) {
     console.table(results);
     employeeManager()
   })

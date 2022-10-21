@@ -34,17 +34,27 @@ Run `node index.js` to start the application.
 
 The Employee Management System begins with prompting the user to select what they would like to do.
 
-* The options include: "View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", or "Quit".
+* The options include: "View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Delete Employee", and "Delete Role".
 
-After making the initial selection, the user is prompted to enter information.
+After making the initial selection, the user is prompted to enter information needed for that particular task.
 
-Once the information for the given task is acquired from the user, the data is added to the employee database.
+Once the information is acquired from the user, data is either pulled, added, modified, or deleted from the employee database.
 
 The following information is available for each employee in the database:
 
 * Employee ID
 
-* 
+* First and last name
+
+* Title
+
+* Department
+
+* Salary
+
+* Manager
+
+The Employee Management System is an essential tool for business owners looking to manage employees, roles, and departments in their company.
 
 [Walkthrough Video]()
 
