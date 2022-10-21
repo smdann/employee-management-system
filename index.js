@@ -26,7 +26,8 @@ const employeeManager = () => {
           "View All Departments", 
           "Add Department",
           "Delete Employee",
-          "Delete Role", 
+          "Delete Role",
+          "Delete Department", 
           "Quit"
         ],
     },
@@ -70,6 +71,10 @@ const employeeManager = () => {
 
       case "Delete Role":
         deleteRole()
+        break;
+
+      case "Delete Department":
+        deleteDepartment()
         break;
     
       case "Quit":
@@ -239,7 +244,8 @@ const addRole = () => {
   console.log(`======================================================================================`);
   
   // Query to get department ID when department name is selected
-  db.query("SELECT distinct name, department_id FROM employee_db.department INNER JOIN employee_db.role ON employee_db.department.id = employee_db.role.department_id", (err, res) => {
+  db.query("SELECT distinct name, department_id FROM employee_db.department LEFT JOIN employee_db.role ON employee_db.department.id = employee_db.role.department_id", (err, res) => {
+    // "SELECT distinct name, department_id FROM employee_db.department INNER JOIN employee_db.role ON employee_db.department.id = employee_db.role.department_id"
     if (err) throw err;
     let departments = res.map((department) => ({
       name: department.name,
@@ -310,8 +316,9 @@ const addDepartment = () => {
   // Add new department name into department table
   .then((answers) => {
     db.query(`INSERT INTO department SET ?`,
-    { name: answers.departmentName },
-
+      { 
+        name: answers.departmentName,
+      },
     (err, res) => {
       if (err) throw err;
       console.log(`\n ${answers.departmentName} was successfully added to the database! \n`);
@@ -343,6 +350,7 @@ const deleteEmployee = () => {
         choices: employees,
       }
     ])
+    // Delete from employee table
     .then((answer) => {
       db.query(`DELETE FROM employee WHERE ?`, 
         {
@@ -380,6 +388,7 @@ const deleteRole = () => {
         choices: roles,
       }
     ])
+    // Delete from role table
     .then((answer) => {
       db.query(`DELETE FROM role WHERE ?`, 
       {
@@ -388,6 +397,44 @@ const deleteRole = () => {
       (err, res) => {
         if (err) throw err;
         console.log(`\n Role successfully deleted from the database. \n`);
+
+        employeeManager()
+      })
+    });
+  });
+};
+
+// Delete a department
+const deleteDepartment = () => {
+  console.log(`======================================================================================`);
+  console.log(`\n                              Delete a Department                                 \n`);
+  console.log(`======================================================================================`);
+
+  // Query the departments
+  db.query("SELECT * FROM department", (err, res) => {
+    if (err) throw err;
+    let departments = res.map((department) => ({
+      name: department.name,
+      value: department.id
+    }));
+    
+    inquirer.prompt([
+      {
+        type: "list",
+        message: "Select the department you would like to delete.",
+        name: "departmentDelete",
+        choices: departments,
+      }
+    ])
+    // Delete from department table
+    .then((answer) => {
+      db.query(`DELETE FROM department WHERE ?`,
+      {
+        id: answer.departmentDelete
+      },
+      (err, res) => {
+        if (err) throw err;
+        console.log(`\n Department successfully deleted from the database. \n`);
 
         employeeManager()
       })

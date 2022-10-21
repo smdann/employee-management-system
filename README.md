@@ -38,7 +38,7 @@ The Employee Management System begins with prompting the user to select what the
 
 After making the initial selection, the user is prompted to enter information needed for that particular task.
 
-Once the information is acquired from the user, data is either pulled, added, modified, or deleted from the employee database.
+Once the information is acquired from the user, data is either added, modified, or deleted from the employee database. If the user opts to view something, the data is pulled from the database and displayed in a table.
 
 The following information is available for each employee in the database:
 
