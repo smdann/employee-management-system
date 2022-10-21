@@ -24,7 +24,8 @@ const employeeManager = () => {
           "View All Roles", 
           "Add Role", 
           "View All Departments", 
-          "Add Department", 
+          "Add Department",
+          "Delete Employee", 
           "Quit"
         ],
     },
@@ -61,6 +62,10 @@ const employeeManager = () => {
       case "Add Department":
         addDepartment()
         break;
+
+      case "Delete Employee":
+        deleteEmployee()
+        break;
     
       case "Quit":
         quitApplication()
@@ -77,6 +82,7 @@ const viewEmployees = () => {
   console.log(`======================================================================================`);
   console.log(`\n                                    All Employees                                 \n`);
   console.log(`======================================================================================`);
+  
   // Query to select employee information by joining the table data
   db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;",
   function (err, employees) {
@@ -92,6 +98,7 @@ const addEmployee = () => {
   console.log(`======================================================================================`);
   console.log(`\n                                  Add an Employee                                 \n`);
   console.log(`======================================================================================`);
+  
   // Query the roles
   db.query("SELECT * FROM role", (err, res) => {
     if (err) throw err;
@@ -135,10 +142,10 @@ const addEmployee = () => {
       .then((answers) => {
         db.query(`INSERT INTO employee SET ?`, 
         {
-          first_name:answers.firstName, 
-          last_name:answers.lastName,
-          role_id:answers.employeeRole,
-          manager_id:answers.employeeManager
+          first_name: answers.firstName, 
+          last_name: answers.lastName,
+          role_id: answers.employeeRole,
+          manager_id: answers.employeeManager
         },
         (err, res) => {
           if (err) throw err;
@@ -156,6 +163,7 @@ const updateRole = () => {
   console.log(`======================================================================================`);
   console.log(`\n                            Update an Employee's Role                             \n`);
   console.log(`======================================================================================`);
+  
   // Query the employees
   db.query("SELECT * FROM employee", (err, res) => {
     if (err) throw err;
@@ -224,6 +232,7 @@ const addRole = () => {
   console.log(`======================================================================================`);
   console.log(`\n                                     Add a Role                                   \n`);
   console.log(`======================================================================================`);
+  
   // Query to get department ID when department name is selected
   db.query("SELECT distinct name, department_id FROM employee_db.department INNER JOIN employee_db.role ON employee_db.department.id = employee_db.role.department_id", (err, res) => {
     if (err) throw err;
@@ -254,9 +263,9 @@ const addRole = () => {
     .then((answers) => {
       db.query(`INSERT INTO role SET ?`,
       {
-        title:answers.roleTitle,
-        salary:answers.roleSalary,
-        department_id:answers.roleDepartment
+        title: answers.roleTitle,
+        salary: answers.roleSalary,
+        department_id: answers.roleDepartment
       },
       (err, res) => {
         if (err) throw err;
@@ -296,22 +305,60 @@ const addDepartment = () => {
   // Add new department name into department table
   .then((answers) => {
     db.query(`INSERT INTO department SET ?`,
-    { name:answers.departmentName },
+    { name: answers.departmentName },
 
     (err, res) => {
       if (err) throw err;
       console.log(`\n ${answers.departmentName} was successfully added to the database! \n`);
 
       employeeManager();
-    })
-  })
+    });
+  });
 };
+
+// Delete an employee
+const deleteEmployee = () => {
+  console.log(`======================================================================================`);
+  console.log(`\n                               Delete an Employee                                 \n`);
+  console.log(`======================================================================================`);
+
+  // Query the employees
+  db.query("SELECT * FROM employee", (err, res) => {
+    if (err) throw err;
+    let employees = res.map((employee) => ({
+      name: employee.first_name + " " + employee.last_name,
+      value: employee.id
+    }));
+
+    inquirer.prompt ([
+      {
+        type: "list",
+        message: "Select the employee you would like to delete",
+        name: "employeeDelete",
+        choices: employees,
+      }
+    ])
+    .then((answer) => {
+      db.query(`DELETE FROM employee WHERE ?`, 
+        {
+          id: answer.employeeDelete
+        },
+      (err, res) => {
+        if (err) throw err;
+        console.log(`\n Employee successfully deleted from the database. \n`);
+
+        employeeManager()
+      })
+    });
+  });
+};
+
 
 // Quit
 const quitApplication = () => {
   process.exit
 
   console.log(`======================================================================================`);
-  console.log(`\n              Your Employee Management System session has ended.                  \n`);
+  console.log(`\n                              Your session has ended.                             \n`);
   console.log(`======================================================================================`);
 };
